@@ -62,17 +62,19 @@ fn euclidean_distance(student_a: &Student, student_b: &Student) -> f32 {
 // input: graph and starting node
 // output: list of similar students found through BFS
 
-// high-level logic: BFS is used to explore all students connected/"similar" to the selected one in the similarity graph.
+// high-level logic: BFS here is used to explore all students connected/"similar" to the selected one in the similarity graph.
 
 pub fn run_bfs_from_start(graph: &Graph<Student, f32>, start: NodeIndex) -> Vec<Student> {
-    let mut visited = graph.visit_map();
-    let mut bfs = Bfs::new(graph, start);
-    let mut result = Vec::new();
+    let mut visited = graph.visit_map(); // tracks which nodes we've seen
+    let mut bfs = Bfs::new(graph, start); // BFS traversal object
+    let mut result = Vec::new();  // final list of similar students
 
+
+    // standard BFS loop which visits all reachable nodes
     while let Some(node) = bfs.next(graph) {
-        visited.visit(node);
+        visited.visit(node); // mark as visited
         if let Some(student) = graph.node_weight(node) {
-            result.push(student.clone());
+            result.push(student.clone()); // collects matching student
         }
     }
 

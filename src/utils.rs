@@ -36,7 +36,7 @@ impl Student {
         }
     }
 
-    // this function converts all student attributes into a numerical vector. it's used as input for machine learning models
+    // this function converts all student attributes into a numerical vector. it's used as input for the machine learning model
     pub fn encode_features(&self) -> Vec<f64> {
         vec![
             self.age,
@@ -60,7 +60,6 @@ impl Student {
 
 
 // below are encoding functions which convert string-based fields into numerical values for use in the model input
-
 fn encode_gender(g: &str) -> f64 {
     match g.to_lowercase().as_str() {
         "male" => 0.0,
