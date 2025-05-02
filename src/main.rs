@@ -80,11 +80,13 @@ fn main() -> Result<(), Box<dyn Error>> {
                     println!(" Student ID not found.");
                 }
             }
-            "3" => // option 3: exits the program
+            "3" => {// option 3: exits the program
                 println!("Exiting...");
                 break;
             }
             _ => println!("Invalid choice. Please enter 1, 2, or 3."),
+
+        
         }
     }
 
@@ -156,5 +158,113 @@ fn get_student_from_input() -> Student {
         mental_health_rating: prompt("Mental health rating (1–10): "),
         extracurricular_participation: prompt_string("Extracurricular participation? (Yes/No): "),
         exam_score: 0.0, // Placeholder
+    }
+}
+
+// testing: contains unit tests to verify core functionality
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fs::File;
+    use std::io::Write;
+
+    // test loading students from a sample CSV file
+    #[test]
+    fn test_load_students_from_sample_csv() {
+        let test_csv = "test_students.csv";
+
+        // creates a simple test CSV file
+        let mut file = File::create(test_csv).unwrap();
+        writeln!(file, "student_id,age,gender,study_hours_per_day,social_media_hours,netflix_hours,part_time_job,attendance_percentage,sleep_hours,diet_quality,exercise_frequency,parental_education_level,internet_quality,mental_health_rating,extracurricular_participation,exam_score").unwrap();
+        writeln!(file, "S001,18,Male,3,1,1,No,95,8,Good,3,Bachelor,Good,7,Yes,85").unwrap();
+
+        // loads the data
+        let result = load_students(test_csv);
+        assert!(result.is_ok());
+        let students = result.unwrap();
+        assert_eq!(students.len(), 1);
+        assert_eq!(students[0].student_id, "S001");
+
+        // deletes test file
+        std::fs::remove_file(test_csv).unwrap();
+    }
+
+    // test prediction model output for a known student
+    #[test]
+    fn test_predict_with_known_student() {
+        let student = Student {
+            student_id: "Test".to_string(),
+            age: 18.0,
+            gender: "Male".to_string(),
+            study_hours_per_day: 5.0,
+            social_media_hours: 1.0,
+            netflix_hours: 1.0,
+            part_time_job: "No".to_string(),
+            attendance_percentage: 95.0,
+            sleep_hours: 8.0,
+            diet_quality: "Good".to_string(),
+            exercise_frequency: 3.0,
+            parental_education_level: "Bachelor".to_string(),
+            internet_quality: "Good".to_string(),
+            mental_health_rating: 8.0,
+            extracurricular_participation: "Yes".to_string(),
+            exam_score: 85.0,
+        };
+
+        let model = train_model(&[student.clone()]).unwrap();
+        let prediction = predict(&model, &student);
+        assert_eq!(prediction, 2); // 85 should fall into category 2 (80+)
+    }
+
+    // test encoding feature length and content structure
+    #[test]
+    fn test_encode_features_length_and_values() {
+        let student = Student {
+            student_id: "S001".to_string(),
+            age: 20.0,
+            gender: "Female".to_string(),
+            study_hours_per_day: 3.0,
+            social_media_hours: 2.0,
+            netflix_hours: 1.5,
+            part_time_job: "Yes".to_string(),
+            attendance_percentage: 88.0,
+            sleep_hours: 7.0,
+            diet_quality: "Fair".to_string(),
+            exercise_frequency: 2.0,
+            parental_education_level: "Master".to_string(),
+            internet_quality: "Average".to_string(),
+            mental_health_rating: 6.0,
+            extracurricular_participation: "No".to_string(),
+            exam_score: 72.0,
+        };
+
+        let features = student.encode_features();
+        assert_eq!(features.len(), 14); // should always encode to 14 features
+    }
+
+    // test that Euclidean distance is 0 for identical students
+    #[test]
+    fn test_euclidean_distance_zero_for_identical() {
+        let student = Student {
+            student_id: "S001".to_string(),
+            age: 20.0,
+            gender: "Female".to_string(),
+            study_hours_per_day: 3.0,
+            social_media_hours: 2.0,
+            netflix_hours: 1.5,
+            part_time_job: "Yes".to_string(),
+            attendance_percentage: 88.0,
+            sleep_hours: 7.0,
+            diet_quality: "Fair".to_string(),
+            exercise_frequency: 2.0,
+            parental_education_level: "Master".to_string(),
+            internet_quality: "Average".to_string(),
+            mental_health_rating: 6.0,
+            extracurricular_participation: "No".to_string(),
+            exam_score: 72.0,
+        };
+
+        let distance = crate::graph::euclidean_distance(&student, &student);
+        assert!(distance < 1e-6); // near-zero distance for exact match
     }
 }

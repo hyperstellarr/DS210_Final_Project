@@ -45,7 +45,7 @@ pub fn create_similarity_graph(students: &[Student]) -> (Graph<Student, f32>, Ha
 // input: two students
 // output: Euclidean distance between them
 
-fn euclidean_distance(student_a: &Student, student_b: &Student) -> f32 {
+pub fn euclidean_distance(student_a: &Student, student_b: &Student) -> f32 {
     let a = student_a.encode_features();
     let b = student_b.encode_features();
 

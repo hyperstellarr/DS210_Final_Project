@@ -13,7 +13,6 @@ pub struct TrainedModel {
     model: DecisionTree<f64, usize>,
 }
 
-
 // this function trains a decision tree using student data
 // inputs: slice of Student structs
 // output: TrainedModel (or error)
